@@ -31,6 +31,36 @@ app.get('/api/books', async (req, res) => {
   }
 });
 
+app.get('/api/books/:slug', async (req, res) => {
+  try {
+    const slugParam = req.params.slug;
+    const data = await Book.findOne({ slug: slugParam });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred white fetching books.' });
+  }
+});
+
+app.post('/api/books', async (req, res) => {
+  try {
+    console.log(req.body);
+
+    const newBook = new Book({
+      title: req.body.title,
+      slug: req.body.slug,
+      stars: req.body.stars,
+      description: req.body.description,
+      category: req.body.category,
+      // thumbnail: req.file.thumbnail
+    });
+
+    await Book.create(newBook);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred white fetching books.' });
+  }
+});
+
 // // // // // // // // // //
 app.get('/', (req, res) => {
   res.json('Hello mate!');
