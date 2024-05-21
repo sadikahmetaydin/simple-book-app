@@ -4,6 +4,7 @@ const cors = require('cors');
 const express = require('express');
 const connectDB = require('./connectDB');
 const Book = require('./models/Books');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -41,9 +42,22 @@ app.get('/api/books/:slug', async (req, res) => {
   }
 });
 
-app.post('/api/books', async (req, res) => {
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+app.post('/api/books', upload.single('thumbnail'), async (req, res) => {
   try {
     console.log(req.body);
+    console.log(req.file);
 
     const newBook = new Book({
       title: req.body.title,
@@ -51,15 +65,58 @@ app.post('/api/books', async (req, res) => {
       stars: req.body.stars,
       description: req.body.description,
       category: req.body.category,
-      // thumbnail: req.file.thumbnail
+      thumbnail: req.file.filename,
     });
 
     await Book.create(newBook);
-    res.json(data);
+    res.json('Data Submitted');
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred white fetching books.' });
+    res.status(500).json({ error: 'An error occurred while fetching books.' });
   }
 });
+
+app.put('/api/books', upload.single('thumbnail'), async (req, res) => {
+  try {
+    const bookId = req.body.bookId;
+
+    const updateBook = {
+      title: req.body.title,
+      slug: req.body.slug,
+      stars: req.body.stars,
+      description: req.body.description,
+      category: req.body.category,
+    };
+
+    if (req.file) {
+      updateBook.thumbnail = req.file.filename;
+    }
+
+    await Book.findByIdAndUpdate(bookId, updateBook);
+    res.json('Data Submitted');
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while fetching books.' });
+  }
+});
+
+// app.post('/api/books', async (req, res) => {
+//   try {
+//     console.log(req.body);
+
+//     const newBook = new Book({
+//       title: req.body.title,
+//       slug: req.body.slug,
+//       stars: req.body.stars,
+//       description: req.body.description,
+//       category: req.body.category,
+//       // thumbnail: req.file.thumbnail
+//     });
+
+//     await Book.create(newBook);
+//     res.json(data);
+//   } catch (error) {
+//     res.status(500).json({ error: 'An error occurred white fetching books.' });
+//   }
+// });
 
 // // // // // // // // // //
 app.get('/', (req, res) => {
