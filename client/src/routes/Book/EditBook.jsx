@@ -38,7 +38,7 @@ export default function EditBook() {
     fetchData();
   }, []);
 
-  const editBook = async (e) => {
+  const createBook = async (e) => {
     e.preventDefault();
     console.table([title, slug]);
 
@@ -94,17 +94,17 @@ export default function EditBook() {
       {submitted ? (
         <p>Data submitted successfully!</p>
       ) : (
-        <form className="bookdetails" onSubmit={editBook}>
+        <form className="bookdetails" onSubmit={createBook}>
           <div className="col-1">
             <label>Upload Thumbnail</label>
-            (image ? (
-            <img src={`${image}`} alt="preview image" />
+            {image ? (
+              <img src={`${image}`} alt="preview image" />
             ) : (
-            <img
-              src={`http://localhost:8000/uploads/${thumbnail}`}
-              alt="preview image"
-            />
-            ))
+              <img
+                src={`http://localhost:8000/uploads/${thumbnail}`}
+                alt="preview image"
+              />
+            )}
             <input
               onChange={onImageChange}
               type="file"
