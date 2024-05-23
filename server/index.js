@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const cors = require('cors');
 const express = require('express');
 const connectDB = require('./connectDB');
@@ -15,10 +14,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
+// Get All Books
 app.get('/api/books', async (req, res) => {
   try {
     const category = req.query.category;
-    // const starts = req.query.stars;
 
     const filter = {};
     if (category) {
@@ -26,22 +25,34 @@ app.get('/api/books', async (req, res) => {
     }
 
     const data = await Book.find(filter);
-    res.json(data);
+
+    if (!data) {
+      throw new Error('An error occurred while fetching books.');
+    }
+
+    res.status(201).json(data);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred white fetching books.' });
+    res.status(500).json({ error: 'An error occurred while fetching books.' });
   }
 });
 
+// Get A Single Books
 app.get('/api/books/:slug', async (req, res) => {
   try {
     const slugParam = req.params.slug;
     const data = await Book.findOne({ slug: slugParam });
-    res.json(data);
+
+    if (!data) {
+      throw new Error('An error occurred while fetching a book.');
+    }
+
+    res.status(201).json(data);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred white fetching books.' });
+    res.status(500).json({ error: 'An error occurred while fetching books.' });
   }
 });
 
+// Create A Book
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -75,6 +86,7 @@ app.post('/api/books', upload.single('thumbnail'), async (req, res) => {
   }
 });
 
+// Update A Book
 app.put('/api/books', upload.single('thumbnail'), async (req, res) => {
   try {
     const bookId = req.body.bookId;
@@ -98,27 +110,17 @@ app.put('/api/books', upload.single('thumbnail'), async (req, res) => {
   }
 });
 
-// app.post('/api/books', async (req, res) => {
-//   try {
-//     console.log(req.body);
+app.delete('/api/books/:id', async (req, res) => {
+  const bookId = req.params.id;
 
-//     const newBook = new Book({
-//       title: req.body.title,
-//       slug: req.body.slug,
-//       stars: req.body.stars,
-//       description: req.body.description,
-//       category: req.body.category,
-//       // thumbnail: req.file.thumbnail
-//     });
+  try {
+    await Book.deleteOne({ _id: bookId });
+    res.json('How dare you!' + req.body.bookId);
+  } catch (error) {
+    res.json(error);
+  }
+});
 
-//     await Book.create(newBook);
-//     res.json(data);
-//   } catch (error) {
-//     res.status(500).json({ error: 'An error occurred white fetching books.' });
-//   }
-// });
-
-// // // // // // // // // //
 app.get('/', (req, res) => {
   res.json('Hello mate!');
 });

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import NoImageSelected from '../../assets/no-image-selected.jpg';
 
 export default function EditBook() {
+  const navigate = useNavigate();
   const urlSlug = useParams();
   const baseUrl = `http://localhost:8000/api/books/${urlSlug.slug}`;
 
@@ -83,6 +84,26 @@ export default function EditBook() {
     }
   };
 
+  const removeBook = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(
+        'http://localhost:8000/api/books/' + bookId,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (response.ok) {
+        navigate('/books');
+        console.log('Book Removed!');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       <h1>Edit Book</h1>
@@ -90,6 +111,10 @@ export default function EditBook() {
         This is where we use NodeJs, Express & MongoDB to grab some data. <br />{' '}
         The data below is pulled from a MongoDB database.
       </p>
+
+      <button onClick={removeBook} className="delete">
+        Delete Book
+      </button>
 
       {submitted ? (
         <p>Data submitted successfully!</p>
