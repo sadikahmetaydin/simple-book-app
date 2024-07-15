@@ -3,7 +3,7 @@ A simple book app build with mongodb, express, reactjs and nodejs.
 
 # 💡About this project 
 
-....
+I built simple book app, in this application you can create new book, enter book title, description, category, upload book image and give a stars. And then you'll edit that book stages and delete complately book page.
 
 ## ⚡Technologies
 * `MONGODB`
